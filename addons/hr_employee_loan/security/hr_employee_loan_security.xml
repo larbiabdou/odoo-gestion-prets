@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_employee_loan_company_rule" model="ir.rule">
+        <field name="name">Prêts employés : multi-société</field>
+        <field name="model_id" ref="model_hr_employee_loan"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="hr_employee_loan_line_company_rule" model="ir.rule">
+        <field name="name">Tranches de prêt : multi-société</field>
+        <field name="model_id" ref="model_hr_employee_loan_line"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="hr_loan_bank_account_company_rule" model="ir.rule">
+        <field name="name">Comptes bancaires des prêts : multi-société</field>
+        <field name="model_id" ref="model_hr_loan_bank_account"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="hr_unit_company_rule" model="ir.rule">
+        <field name="name">Unités : multi-société</field>
+        <field name="model_id" ref="model_hr_unit"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+</odoo>

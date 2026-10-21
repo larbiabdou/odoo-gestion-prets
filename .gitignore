@@ -1,0 +1,7 @@
+# configuration locale (mots de passe) et journaux
+odoo.conf
+*.log
+
+# Python
+__pycache__/
+*.pyc

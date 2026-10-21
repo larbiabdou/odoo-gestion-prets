@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="hr_employee_loan.LoanDashboard">
+        <div class="o_action o_loan_dashboard">
+            <Layout display="{ controlPanel: {} }">
+                <div class="o_loan_dashboard_content p-3">
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                        <select class="form-select form-select-sm w-auto" t-on-change="(ev) => this.onFilterChange('unit_id', ev)">
+                            <option value="" t-att-selected="!filters.unit_id">Toutes les unités</option>
+                            <t t-foreach="state.data.units" t-as="unit" t-key="unit.id">
+                                <option t-att-value="unit.id" t-att-selected="filters.unit_id == unit.id" t-esc="unit.name"/>
+                            </t>
+                        </select>
+                        <select class="form-select form-select-sm w-auto" t-on-change="(ev) => this.onFilterChange('account_id', ev)">
+                            <option value="" t-att-selected="!filters.account_id">Tous les comptes</option>
+                            <t t-foreach="state.data.accounts" t-as="account" t-key="account.id">
+                                <option t-att-value="account.id" t-att-selected="filters.account_id == account.id" t-esc="account.name"/>
+                            </t>
+                        </select>
+                        <span class="text-muted small">Attribués du</span>
+                        <input type="date" class="form-control form-control-sm w-auto" t-att-value="filters.date_from" t-on-change="(ev) => this.onFilterChange('date_from', ev)"/>
+                        <span class="text-muted small">au</span>
+                        <input type="date" class="form-control form-control-sm w-auto" t-att-value="filters.date_to" t-on-change="(ev) => this.onFilterChange('date_to', ev)"/>
+                        <button class="btn btn-sm btn-secondary" t-on-click="resetFilters" title="Réinitialiser les filtres">
+                            <i class="fa fa-times"/>
+                        </button>
+                    </div>
+
+                    <div class="row g-3">
+                        <t t-foreach="cards" t-as="card" t-key="card.key">
+                            <div class="col-12 col-sm-6 col-xl-4">
+                                <div t-attf-class="card h-100 o_loan_kpi {{ card.open ? 'o_loan_kpi_clickable' : '' }}"
+                                     t-on-click="() => card.open and card.open()">
+                                    <div class="card-body d-flex align-items-center gap-3">
+                                        <span class="o_loan_kpi_icon rounded-circle d-flex align-items-center justify-content-center">
+                                            <i t-attf-class="fa {{ card.icon }} fa-lg"/>
+                                        </span>
+                                        <div class="flex-grow-1 min-w-0">
+                                            <div class="text-muted small" t-esc="card.label"/>
+                                            <div class="fs-3 fw-bold text-truncate" t-esc="card.value"/>
+                                            <div t-if="card.rate !== undefined" class="progress mt-1" style="height: 6px;">
+                                                <div class="progress-bar bg-success" role="progressbar"
+                                                     t-attf-style="width: {{ Math.min(card.rate * 100, 100) }}%;"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+
+                    <div class="card mt-4">
+                        <div class="card-header fw-bold">Par unité</div>
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Unité</th>
+                                        <th class="text-end">Prêts</th>
+                                        <th class="text-end">Bénéficiaires</th>
+                                        <th class="text-end">Accordé</th>
+                                        <th class="text-end">Remboursé</th>
+                                        <th class="text-end">Reste à recouvrer</th>
+                                        <th class="text-end">Taux</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-if="!state.data.by_unit.length">
+                                        <td colspan="7" class="text-center text-muted">Aucun prêt accordé pour ces filtres.</td>
+                                    </tr>
+                                    <tr t-foreach="state.data.by_unit" t-as="row" t-key="row.unit_id or 0"
+                                        class="cursor-pointer" t-on-click="() => this.openUnit(row.unit_id)">
+                                        <td t-esc="row.name"/>
+                                        <td class="text-end" t-esc="row.count"/>
+                                        <td class="text-end" t-esc="row.beneficiary_count"/>
+                                        <td class="text-end" t-esc="money(row.amount_granted)"/>
+                                        <td class="text-end" t-esc="money(row.amount_repaid)"/>
+                                        <td class="text-end" t-esc="money(row.amount_residual)"/>
+                                        <td class="text-end" t-esc="percent(row.repayment_rate)"/>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </Layout>
+        </div>
+    </t>
+</templates>

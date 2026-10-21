@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="paperformat_loan_contract" model="report.paperformat">
+        <field name="name">Contrat de prêt (A4)</field>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">12</field>
+        <field name="margin_bottom">28</field>
+        <field name="margin_left">20</field>
+        <field name="margin_right">20</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">5</field>
+        <field name="dpi">96</field>
+    </record>
+
+    <record id="action_report_loan_contract" model="ir.actions.report">
+        <field name="name">Contrat de prêt</field>
+        <field name="model">hr.employee.loan</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hr_employee_loan.report_loan_contract</field>
+        <field name="report_file">hr_employee_loan.report_loan_contract</field>
+        <field name="print_report_name">'Contrat de prêt - %s' % object.employee_id.name</field>
+        <field name="paperformat_id" ref="paperformat_loan_contract"/>
+        <field name="binding_model_id" ref="model_hr_employee_loan"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_loan_contract_document">
+        <t t-set="employee" t-value="o.employee_id"/>
+        <t t-set="installment_amount" t-value="o._contract_installment_amount()"/>
+
+        <div class="header"/>
+
+        <div class="article o_loan_contract" t-att-data-oe-model="o._name" t-att-data-oe-id="o.id">
+            <style>
+                .o_loan_contract { font-family: "Times New Roman", Times, serif; font-size: 16px; line-height: 1.4; color: #000; text-rendering: geometricPrecision; }
+                .o_loan_contract table { border-collapse: separate !important; border-spacing: 0; }
+                .o_loan_contract table, .o_loan_contract tr, .o_loan_contract td { border: none !important; }
+                .o_loan_contract p { margin: 0 0 10px 0; text-align: justify; }
+                .o_loan_contract .lc-head td { vertical-align: middle; }
+                .o_loan_contract .lc-ar { direction: rtl; font-weight: bold; }
+                .o_loan_contract .lc-ids { font-family: Arial, sans-serif; font-size: 10px; }
+                .o_loan_contract .lc-title { margin: 55px auto 40px auto; width: 58%; padding: 14px 10px; text-align: center;
+                    border: 1px solid #a99cc0; border-radius: 14px; font-style: italic;
+                    background: #efeaf6; background: -webkit-linear-gradient(top, #ffffff, #ddd3ea); }
+                .o_loan_contract .lc-title .t1 { font-size: 26px; }
+                .o_loan_contract .lc-title .t2 { font-size: 19px; margin-top: 6px; }
+                .o_loan_contract .lc-indent { margin-left: 50px; }
+                .o_loan_contract .lc-article { font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 16px; margin: 16px 0 10px 0; }
+                .o_loan_contract .lc-sub { font-weight: bold; margin: 12px 0 8px 0; }
+            </style>
+
+            <!-- En-tête (première page) -->
+            <table class="lc-head o_ignore_layout_styling" style="width: 100%;">
+                <tr>
+                    <td style="width: 26%;">
+                        <img t-att-src="o._contract_logo()" style="width: 100%; max-height: 95px; border: 1px solid #7a9cc6; padding: 2px;" alt="Logo"/>
+                    </td>
+                    <td style="width: 48%; text-align: center;">
+                        <div class="lc-ar" style="font-size: 23px;">المجمع الصناعي لإسمنت الجزائر</div>
+                        <div class="lc-ar" style="font-size: 18px;">شركة الصيانة الصناعية والأفران</div>
+                        <div style="font-size: 23px; font-weight: bold; margin-top: 6px;">SMIF</div>
+                    </td>
+                    <td style="width: 26%;"/>
+                </tr>
+            </table>
+            <table class="o_ignore_layout_styling" style="width: 100%; margin-top: 4px;">
+                <tr>
+                    <td style="width: 60%; text-align: center; font-weight: bold; font-size: 14px;">
+                        SPA au capital social de:&#160;&#160;&#160;&#160;795.000.000&#160;&#160;D A
+                    </td>
+                    <td class="lc-ar" style="width: 40%; text-align: right; font-size: 12px;">شركة ذات أسهم رأسمالها الإجتماعي:</td>
+                </tr>
+            </table>
+            <table class="lc-ids o_ignore_layout_styling" style="width: 100%;">
+                <tr>
+                    <td style="text-align: left;">N° Identification Fiscale: 099835010199514</td>
+                    <td style="text-align: center;">N° Article d’Imposition: 35010030133</td>
+                    <td style="text-align: right;">N° Registre de Commerce: 98 B 0802247</td>
+                </tr>
+            </table>
+
+            <div class="lc-title">
+                <div class="t1">Contrat de prêt social</div>
+                <div class="t2" t-out="o._contract_number()"/>
+            </div>
+
+            <p><strong>Entre les soussignés :</strong></p>
+            <div class="lc-indent">
+                <p>La Comité de Participation unité SEG de la société de Maintenance Industrielle et Fours SMIF.</p>
+                <p>Dont le siège social est à&#160;<strong>BP&#160;&#160;77&#160;&#160;Meftah&#160;&#160;&#160;(W.BLIDA)&#160;&#160;-&#160;&#160;Algérie</strong></p>
+                <p>Représentée par son&#160;<strong>Délégué Président de la commission des prêts sociaux, Monsieur SAAD SOFIANE</strong>&#160;Ayant tous les pouvoirs à l'effet du présent contrat,&#160;<strong>dénommé Préteur-CPS.</strong></p>
+            </div>
+            <p style="margin-left: 25px;"><strong>Et</strong></p>
+            <div class="lc-indent">
+                <p>Monsieur/Madame:&#160;<strong t-out="employee.name"/></p>
+                <p>Fonction:&#160;<strong t-out="employee.job_title or employee.job_id.name or '……………………………'"/></p>
+                <p>Unité:&#160;<strong t-out="o.unit_id.name or employee.unit_id.name or '……………………………'"/></p>
+                <p>Demeurant à:&#160;<strong t-out="o._contract_employee_address() or '……………………………'"/></p>
+                <p><strong>Dénommé Bénéficiaire</strong>.</p>
+            </div>
+            <p><strong>Il a été convenu et arrêté ce qui suit :</strong></p>
+
+            <div class="lc-article" style="page-break-before: always;">Article 1 : Objet</div>
+            <p>Le présent contrat a pour objet de définir les conditions et les modalités d'octroi et de remboursement du prêt social consenti sans intérêt, accordé par le&#160;<strong>Préteur-CPS</strong>&#160;au profit de&#160;<strong>Madame/Monsieur : <t t-out="employee.name"/></strong>&#160;Bénéficiaire d'un montant de&#160;<strong t-out="o._contract_amount_in_words(o.amount)"/>&#160;<strong>(<t t-out="o._contract_format_amount(o.amount)"/> DA)</strong>.</p>
+
+            <div class="lc-article">Article 2 : Modalités de remboursement</div>
+            <p>Le Bénéficiaire s’engage à rembourser la somme du prêt au&#160;<strong>Préteur-CPS</strong>&#160;par&#160;<strong><t t-out="o.installment_count"/> mensualités de <t t-out="o._contract_amount_in_words(installment_amount)"/> (<t t-out="o._contract_format_amount(installment_amount)"/> DA).</strong></p>
+            <p>Le Bénéficiaire autorise expressément le Préteur-CPS à prélever sur son salaire ces mensualités à chaque échéance de la paie, et ce à compter du mois de&#160;<strong t-out="o._contract_start_month()"/>.</p>
+            <p>Le Bénéficiaire aura la faculté de se libérer de sa dette par anticipation, en totalité ou en fractions. Les règlements effectués par anticipation s’imputeront sur les échéances restant à courir.</p>
+
+            <div class="lc-article">Article 3 : Suspension de la relation de travail</div>
+            <div class="lc-sub">3.1 Maladie :</div>
+            <p>En cas d’impossibilité d’opérer les retenues mensuelles prévues, sur les salaires pour cause de maladie, le Bénéficiaire est tenu de s’en acquitter avant l’expiration du présent contrat.</p>
+            <div class="lc-sub">3.2 Mise en disponibilité</div>
+            <p>Le Bénéficiaire s’engage à rembourser, avant son départ, la totalité des sommes dues, au titre de la période de sa mise en disponibilité.</p>
+            <div class="lc-sub">3.3 Cas de Décès</div>
+            <p>En Cas de décès du Bénéficiaire avant extinction totale de sa dette, le&#160;<strong>Préteur-CPS</strong>, procède à la déduction des sommes de son solde de tout compte.</p>
+            <div class="lc-sub">3.4 Cessation de la relation de travail</div>
+            <p>En cas de cessation de la relation de travail du Bénéficiaire pour quel motif que ce soit (démission, licenciement, départ en retraite, fin de contrat) avant extinction totale de sa dette, les sommes restant dues seront compensables avec les gains acquis par le Bénéficiaire, dans le cas ou ces derniers ne couvrent pas la totalité du prêt, le Bénéficiaire s’engage à verser à la société le montant des sommes restantes.</p>
+
+            <div class="lc-article">Article 4 : Règlement des différends</div>
+            <p>En cas de différend né de l’interprétation et/ou de l’exécution des clauses du présent contrat, les parties conviennent de le régler à l’amiable.</p>
+            <p>A défaut de règlement à l’amiable, Le Préteur-CPS procède à la retenue des gains revenant au bénéficiaire dans le cadre de régularisation dans les limites des sommes dues par le Bénéficiaire.</p>
+            <p>En tout état de cause, Le Préteur-CPS se réserve le droit d’user de tout moyen réglementaire et/ou légal en vue de la récupération de la totalité des sommes dues au titre du prêt consenti au Bénéficiaire.</p>
+            <p>Le tribunal Algérien, territorialement compétent, sera saisi en cas de litige.</p>
+
+            <p style="margin-top: 35px;">Fait en Trois (03) exemplaires à Sour El Ghozlane&#160;&#160;le .…/.…/ ……...</p>
+            <table class="o_ignore_layout_styling" style="width: 100%; margin-top: 35px;">
+                <tr>
+                    <td style="width: 50%;">Signature du Bénéficiaire</td>
+                    <td style="width: 50%; text-align: right; padding-right: 30px;">Le Préteur-CPS</td>
+                </tr>
+                <tr>
+                    <td style="padding-top: 8px;">&#160;« Lu et Approuvé »</td>
+                    <td/>
+                </tr>
+            </table>
+        </div>
+
+        <div class="footer o_loan_contract_footer" style="font-family: 'Times New Roman', Times, serif; font-size: 12px;">
+            <style>.o_loan_contract_footer { text-rendering: geometricPrecision; } .o_loan_contract_footer table { border-collapse: separate !important; border-spacing: 0; } .o_loan_contract_footer table, .o_loan_contract_footer tr, .o_loan_contract_footer td { border: none !important; padding: 0 !important; }</style>
+            <div style="border-top: 1px solid #000; padding-top: 3px;">
+                <table class="o_ignore_layout_styling" style="width: 100%;">
+                    <tr>
+                        <td style="width: 50%;">Paraphe du bénéficiaire</td>
+                        <td style="width: 50%;">Paraphe du préteur/SMIF</td>
+                    </tr>
+                    <tr>
+                        <td>Mme/Mr: <strong t-out="employee.name"/></td>
+                        <td style="text-align: right; font-size: 10px;">Page <strong class="page"/> sur <strong class="topage"/></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </template>
+
+    <template id="report_loan_contract">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="hr_employee_loan.report_loan_contract_document"/>
+            </t>
+        </t>
+    </template>
+</odoo>

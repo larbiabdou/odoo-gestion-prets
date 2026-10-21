@@ -1,0 +1,22 @@
+.o_loan_dashboard {
+    .o_loan_dashboard_content {
+        overflow-y: auto;
+    }
+
+    .o_loan_kpi_icon {
+        width: 48px;
+        height: 48px;
+        flex: 0 0 48px;
+        background-color: rgba($o-action, 0.12);
+        color: $o-action;
+    }
+
+    .o_loan_kpi_clickable {
+        cursor: pointer;
+        transition: box-shadow 0.15s ease-in-out;
+
+        &:hover {
+            box-shadow: $box-shadow;
+        }
+    }
+}

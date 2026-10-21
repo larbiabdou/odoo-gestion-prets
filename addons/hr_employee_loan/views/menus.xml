@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Menu principal « Gestion des prêts » -->
+    <menuitem id="menu_loan_root"
+              name="Gestion des prêts"
+              action="action_hr_employee_loan_dashboard"
+              groups="hr.group_hr_user"
+              web_icon="hr_employee_loan,static/description/icon.png"
+              sequence="1"/>
+
+    <menuitem id="menu_loan_dashboard" name="Tableau de bord" parent="menu_loan_root" action="action_hr_employee_loan_dashboard" sequence="5"/>
+    <menuitem id="menu_loan_loans" name="Prêts" parent="menu_loan_root" action="action_hr_employee_loan" sequence="10"/>
+    <menuitem id="menu_loan_lines" name="Tranches" parent="menu_loan_root" action="action_hr_employee_loan_line" sequence="20"/>
+    <menuitem id="menu_loan_employees" name="Employés" parent="menu_loan_root" action="action_hr_employee_simple" sequence="30"/>
+
+    <menuitem id="menu_loan_config" name="Configuration" parent="menu_loan_root" sequence="100"/>
+    <menuitem id="menu_loan_bank_account" name="Comptes bancaires" parent="menu_loan_config" action="action_hr_loan_bank_account" sequence="10"/>
+    <menuitem id="menu_loan_unit" name="Unités" parent="menu_loan_config" action="action_hr_unit" sequence="20"/>
+    <menuitem id="menu_loan_department" name="Départements" parent="menu_loan_config" action="hr.hr_department_tree_action" sequence="30"/>
+
+    <!-- Masque l'application Employés standard (réactivée par uninstall_hook) -->
+    <record id="hr.menu_hr_root" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+</odoo>

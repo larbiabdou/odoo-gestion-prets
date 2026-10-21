@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Prêts -->
+    <record id="hr_employee_loan_view_list" model="ir.ui.view">
+        <field name="name">hr.employee.loan.list</field>
+        <field name="model">hr.employee.loan</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="state in ('cancel', 'refused')" decoration-info="state == 'draft'" decoration-success="state == 'done'">
+                <field name="name"/>
+                <field name="employee_id" widget="many2one_avatar_employee"/>
+                <field name="department_id" optional="hide"/>
+                <field name="unit_id" optional="show"/>
+                <field name="account_id" optional="show"/>
+                <field name="date"/>
+                <field name="date_granted" optional="show"/>
+                <field name="installment_count" optional="show"/>
+                <field name="amount" sum="Total"/>
+                <field name="amount_paid" sum="Total"/>
+                <field name="amount_residual" sum="Total"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'running'" decoration-success="state == 'done'" decoration-danger="state == 'refused'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="hr_employee_loan_view_form" model="ir.ui.view">
+        <field name="name">hr.employee.loan.form</field>
+        <field name="model">hr.employee.loan</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_compute_installments" string="Générer les tranches" type="object" class="btn-primary" invisible="state != 'draft' or line_ids"/>
+                    <button name="action_compute_installments" string="Recalculer les tranches" type="object" invisible="state != 'draft' or not line_ids"/>
+                    <button name="action_confirm" string="Valider" type="object" class="btn-primary" invisible="state != 'draft' or not line_ids"/>
+                    <button name="action_print_contract" string="Imprimer le contrat" type="object" icon="fa-print" invisible="state not in ('running', 'done')"/>
+                    <button name="action_refuse" string="Rejeter" type="object" invisible="state != 'draft'"/>
+                    <button name="action_draft" string="Remettre en brouillon" type="object" invisible="state not in ('running', 'refused', 'cancel')"/>
+                    <button name="action_cancel" string="Annuler" type="object" invisible="state not in ('draft', 'running')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,running,done"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Soldé" bg_color="text-bg-success" invisible="state != 'done'"/>
+                    <widget name="web_ribbon" title="Rejeté" bg_color="text-bg-danger" invisible="state != 'refused'"/>
+                    <widget name="web_ribbon" title="Annulé" bg_color="text-bg-danger" invisible="state != 'cancel'"/>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="employee_id" widget="many2one_avatar_employee" readonly="state != 'draft'" context="{'form_view_ref': 'hr_employee_loan.hr_employee_view_form_simple'}"/>
+                            <field name="department_id"/>
+                            <field name="unit_id" readonly="1" force_save="1"/>
+                            <field name="account_id" readonly="state != 'draft'" options="{'no_quick_create': True}"/>
+                            <field name="date" readonly="state != 'draft'"/>
+                            <field name="date_granted" invisible="not date_granted"/>
+                            <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="amount" readonly="state != 'draft'"/>
+                            <field name="installment_count" readonly="state != 'draft'"/>
+                            <field name="first_installment_date"/>
+                            <field name="amount_paid"/>
+                            <field name="amount_residual"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Tranches" name="installments">
+                            <field name="line_ids" readonly="state != 'draft'">
+                                <list editable="bottom" decoration-success="state == 'paid'" decoration-danger="state == 'unpaid' and date &lt; current_date">
+                                    <field name="sequence"/>
+                                    <field name="date" readonly="1" force_save="1"/>
+                                    <field name="amount" sum="Total"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                    <field name="loan_state" column_invisible="True"/>
+                                    <field name="payment_date" readonly="1"/>
+                                    <field name="payment_ref" readonly="1" optional="show"/>
+                                    <field name="state" widget="badge" readonly="1" decoration-success="state == 'paid'" decoration-warning="state == 'unpaid'"/>
+                                    <button name="action_pay" string="Payer" type="object" icon="fa-check" class="btn-link" invisible="state != 'unpaid' or loan_state != 'running'"/>
+                                    <button name="action_unpay" string="Annuler le paiement" type="object" icon="fa-undo" class="btn-link" invisible="state != 'paid'"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Motif" name="note">
+                            <field name="note" placeholder="Motif du prêt..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="hr_employee_loan_view_search" model="ir.ui.view">
+        <field name="name">hr.employee.loan.search</field>
+        <field name="model">hr.employee.loan</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="unit_id"/>
+                <field name="account_id"/>
+                <filter name="draft" string="Brouillon" domain="[('state', '=', 'draft')]"/>
+                <filter name="running" string="En cours" domain="[('state', '=', 'running')]"/>
+                <filter name="done" string="Soldés" domain="[('state', '=', 'done')]"/>
+                <filter name="refused" string="Rejetés" domain="[('state', '=', 'refused')]"/>
+                <separator/>
+                <filter name="filter_date" string="Date de demande" date="date"/>
+                <filter name="filter_date_granted" string="Date d'attribution" date="date_granted"/>
+                <group>
+                    <filter name="group_employee" string="Employé" context="{'group_by': 'employee_id'}"/>
+                    <filter name="group_department" string="Département" context="{'group_by': 'department_id'}"/>
+                    <filter name="group_unit" string="Unité" context="{'group_by': 'unit_id'}"/>
+                    <filter name="group_account" string="Compte bancaire" context="{'group_by': 'account_id'}"/>
+                    <filter name="group_state" string="Statut" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hr_employee_loan" model="ir.actions.act_window">
+        <field name="name">Prêts</field>
+        <field name="res_model">hr.employee.loan</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="hr_employee_loan_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Créer un prêt employé</p>
+            <p>Saisissez le montant et le nombre de tranches, générez l'échéancier puis validez le prêt.</p>
+        </field>
+    </record>
+
+    <!-- Tranches -->
+    <record id="hr_employee_loan_line_view_list" model="ir.ui.view">
+        <field name="name">hr.employee.loan.line.list</field>
+        <field name="model">hr.employee.loan.line</field>
+        <field name="arch" type="xml">
+            <list create="0" editable="bottom" decoration-success="state == 'paid'" decoration-danger="state == 'unpaid' and date &lt; current_date">
+                <header>
+                    <button name="action_pay" string="Payer" type="object" class="btn-primary"/>
+                </header>
+                <field name="loan_id" readonly="1"/>
+                <field name="employee_id" widget="many2one_avatar_employee" readonly="1"/>
+                <field name="unit_id" readonly="1" optional="show"/>
+                <field name="account_id" readonly="1" optional="show"/>
+                <field name="sequence" readonly="1"/>
+                <field name="date" readonly="1"/>
+                <field name="amount" readonly="1" sum="Total"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="loan_state" column_invisible="True"/>
+                <field name="payment_date" readonly="state == 'paid'"/>
+                <field name="payment_ref" readonly="state == 'paid'"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="state" widget="badge" readonly="1" decoration-success="state == 'paid'" decoration-warning="state == 'unpaid'"/>
+                <button name="action_pay" string="Payer" type="object" icon="fa-check" class="btn-link" invisible="state != 'unpaid' or loan_state != 'running'"/>
+                <button name="action_unpay" string="Annuler le paiement" type="object" icon="fa-undo" class="btn-link" invisible="state != 'paid'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="hr_employee_loan_line_view_search" model="ir.ui.view">
+        <field name="name">hr.employee.loan.line.search</field>
+        <field name="model">hr.employee.loan.line</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="employee_id"/>
+                <field name="loan_id"/>
+                <field name="unit_id"/>
+                <field name="account_id"/>
+                <filter name="unpaid" string="À payer" domain="[('state', '=', 'unpaid')]"/>
+                <filter name="paid" string="Payées" domain="[('state', '=', 'paid')]"/>
+                <separator/>
+                <filter name="late" string="En retard" domain="[('state', '=', 'unpaid'), ('date', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter name="filter_date" string="Échéance" date="date"/>
+                <group>
+                    <filter name="group_employee" string="Employé" context="{'group_by': 'employee_id'}"/>
+                    <filter name="group_loan" string="Prêt" context="{'group_by': 'loan_id'}"/>
+                    <filter name="group_unit" string="Unité" context="{'group_by': 'unit_id'}"/>
+                    <filter name="group_account" string="Compte bancaire" context="{'group_by': 'account_id'}"/>
+                    <filter name="group_date" string="Mois d'échéance" context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hr_employee_loan_line" model="ir.actions.act_window">
+        <field name="name">Tranches</field>
+        <field name="res_model">hr.employee.loan.line</field>
+        <field name="view_mode">list</field>
+        <field name="domain">[('loan_state', 'in', ('running', 'done'))]</field>
+        <field name="context">{'search_default_unpaid': 1}</field>
+        <field name="search_view_id" ref="hr_employee_loan_line_view_search"/>
+    </record>
+
+    <record id="action_hr_employee_loan_dashboard" model="ir.actions.client">
+        <field name="name">Tableau de bord des prêts</field>
+        <field name="tag">hr_employee_loan.dashboard</field>
+    </record>
+</odoo>

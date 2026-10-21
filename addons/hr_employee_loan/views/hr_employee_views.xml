@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_employee_view_form_inherit_loan" model="ir.ui.view">
+        <field name="name">hr.employee.form.loan</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+                <button name="action_open_loans" type="object" class="oe_stat_button" icon="fa-money" groups="hr.group_hr_user" invisible="not loan_count">
+                    <field name="loan_count" widget="statinfo" string="Prêts"/>
+                </button>
+            </div>
+            <xpath expr="//div[@id='o_work_information']//field[@name='department_id']" position="after">
+                <field name="unit_id" options="{'no_quick_create': True}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="hr_employee_view_list_inherit_loan" model="ir.ui.view">
+        <field name="name">hr.employee.list.loan</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_tree"/>
+        <field name="arch" type="xml">
+            <field name="department_id" position="after">
+                <field name="unit_id" optional="show"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="hr_employee_view_search_inherit_loan" model="ir.ui.view">
+        <field name="name">hr.employee.search.loan</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search/field[@name='department_id']" position="after">
+                <field name="unit_id"/>
+            </xpath>
+            <xpath expr="//searchpanel/field[@name='department_id']" position="after">
+                <field name="unit_id" icon="fa-sitemap" enable_counters="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Fiche employé simplifiée (menu Gestion des prêts) -->
+    <record id="hr_employee_view_list_simple" model="ir.ui.view">
+        <field name="name">hr.employee.list.simple</field>
+        <field name="model">hr.employee</field>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="mobile_phone" string="Téléphone" widget="phone"/>
+                <field name="job_title" string="Fonction" optional="show"/>
+                <field name="unit_id"/>
+                <field name="department_id"/>
+                <field name="loan_count" string="Prêts" optional="show"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="hr_employee_view_form_simple" model="ir.ui.view">
+        <field name="name">hr.employee.form.simple</field>
+        <field name="model">hr.employee</field>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div name="button_box" class="oe_button_box">
+                        <button name="action_open_loans" type="object" class="oe_stat_button" icon="fa-money">
+                            <field name="loan_count" widget="statinfo" string="Prêts"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archivé" bg_color="text-bg-danger" invisible="active"/>
+                    <field name="active" invisible="1"/>
+                    <field name="image_1920" widget="image" class="oe_avatar" options="{'preview_image': 'image_128'}"/>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Nom de l'employé" required="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="mobile_phone" string="Téléphone" widget="phone"/>
+                            <field name="job_title" string="Fonction"/>
+                            <field name="private_street" string="Adresse"/>
+                            <field name="private_city" string="Ville"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group>
+                            <field name="unit_id" options="{'no_quick_create': True}"/>
+                            <field name="department_id"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="hr_employee_view_search_simple" model="ir.ui.view">
+        <field name="name">hr.employee.search.simple</field>
+        <field name="model">hr.employee</field>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="Employé"/>
+                <field name="mobile_phone" string="Téléphone"/>
+                <field name="unit_id"/>
+                <field name="department_id"/>
+                <filter name="no_unit" string="Sans unité" domain="[('unit_id', '=', False)]"/>
+                <separator/>
+                <filter name="archived" string="Archivés" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter name="group_unit" string="Unité" context="{'group_by': 'unit_id'}"/>
+                    <filter name="group_department" string="Département" context="{'group_by': 'department_id'}"/>
+                </group>
+                <searchpanel>
+                    <field name="unit_id" icon="fa-sitemap" enable_counters="1"/>
+                    <field name="department_id" icon="fa-users" enable_counters="1"/>
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hr_employee_simple" model="ir.actions.act_window">
+        <field name="name">Employés</field>
+        <field name="res_model">hr.employee</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="hr_employee_view_search_simple"/>
+        <field name="view_ids" eval="[Command.clear(),
+            Command.create({'view_mode': 'list', 'view_id': ref('hr_employee_view_list_simple')}),
+            Command.create({'view_mode': 'form', 'view_id': ref('hr_employee_view_form_simple')})]"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Créer un employé</p>
+        </field>
+    </record>
+</odoo>

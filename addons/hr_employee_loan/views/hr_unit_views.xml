@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_unit_view_list" model="ir.ui.view">
+        <field name="name">hr.unit.list</field>
+        <field name="model">hr.unit</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="hr_unit_view_search" model="ir.ui.view">
+        <field name="name">hr.unit.search</field>
+        <field name="model">hr.unit</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="code"/>
+                <filter name="archived" string="Archivées" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hr_unit" model="ir.actions.act_window">
+        <field name="name">Unités</field>
+        <field name="res_model">hr.unit</field>
+        <field name="view_mode">list</field>
+        <field name="search_view_id" ref="hr_unit_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Créer une unité</p>
+            <p>Les unités regroupent les employés d'une société.</p>
+        </field>
+    </record>
+
+</odoo>
